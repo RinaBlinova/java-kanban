@@ -1,68 +1,77 @@
-import java.util.Objects;
+package ru.yandex.javacource.blinova.schedule.tasks;
 
-public class Task {
+import ru.yandex.javacource.blinova.schedule.enums.TaskStatus;
+
+public class Subtask extends Task {
     private String name;
     private String description;
     private Long id;
     public TaskStatus taskStatus;
+    private Long epicId;
 
-    public Task(String name, String description, Long id, TaskStatus taskStatus) {
-        this.name = name;
-        this.description = description;
-        this.id = id;
-        this.taskStatus = taskStatus;
 
+    public Subtask(String name, String description, Long id, TaskStatus taskStatus) {
+        super(name, description, id, taskStatus);
     }
 
+    public Subtask() {
+    }
+
+    public Long getEpicId() {
+        return epicId;
+    }
+
+    public void setEpicId(Long epicId) {
+        this.epicId = epicId;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
     public void setDescription(String description) {
         this.description = description;
     }
 
+    @Override
     public Long getId() {
         return id;
     }
 
+    @Override
     public TaskStatus getTaskStatus() {
         return taskStatus;
     }
 
+    @Override
     public void setTaskStatus(TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return id.equals(task.id);
-    }
-
-    @Override
     public String toString() {
-        return "Task{" +
+        return "Subtask{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", id=" + id +
                 ", taskStatus=" + taskStatus +
+                ", epicId=" + epicId +
                 '}';
     }
 }
-
