@@ -52,24 +52,15 @@ public class TaskManager {
     }
 
     public Task getTaskById(Long id) {
-        if (tasks.containsKey(id)) {
-            return tasks.get(id);
-        }
-        return null;
+        return tasks.get(id);
     }
 
     public Subtask getSubtaskById(Long id) {
-        if (subtasks.containsKey(id)) {
-            return subtasks.get(id);
-        }
-        return null;
+        return subtasks.get(id);
     }
 
     public Epic getEpicById(Long id) {
-        if (epics.containsKey(id)) {
-            return epics.get(id);
-        }
-        return null;
+        return epics.get(id);
     }
 
 
