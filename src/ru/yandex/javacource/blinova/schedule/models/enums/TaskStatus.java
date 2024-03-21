@@ -1,4 +1,4 @@
-package ru.yandex.javacource.blinova.schedule.enums;
+package ru.yandex.javacource.blinova.schedule.models.enums;
 
 public enum TaskStatus {
     NEW,

@@ -1,6 +1,6 @@
-package ru.yandex.javacource.blinova.schedule.tasks;
+package ru.yandex.javacource.blinova.schedule.models.tasks;
 
-import ru.yandex.javacource.blinova.schedule.enums.TaskStatus;
+import ru.yandex.javacource.blinova.schedule.models.enums.TaskStatus;
 
 import java.util.Objects;
 
@@ -61,7 +61,7 @@ public class Task {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null) return false;
         Task task = (Task) o;
         return id.equals(task.id);
     }

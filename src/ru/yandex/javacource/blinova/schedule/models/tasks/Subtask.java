@@ -1,6 +1,6 @@
-package ru.yandex.javacource.blinova.schedule.tasks;
+package ru.yandex.javacource.blinova.schedule.models.tasks;
 
-import ru.yandex.javacource.blinova.schedule.enums.TaskStatus;
+import ru.yandex.javacource.blinova.schedule.models.enums.TaskStatus;
 
 public class Subtask extends Task {
     private Long epicId;
@@ -17,6 +17,9 @@ public class Subtask extends Task {
     }
 
     public void setEpicId(Long epicId) {
+        if (epicId.equals(this.getId())) {
+            return;
+        }
         this.epicId = epicId;
     }
 
