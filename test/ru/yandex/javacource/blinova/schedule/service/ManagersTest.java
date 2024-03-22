@@ -1,10 +1,7 @@
-package ru.yandex.javacource.blinova.schedule.serviceTest;
+package ru.yandex.javacource.blinova.schedule.service;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Epic;
-import ru.yandex.javacource.blinova.schedule.service.HistoryManager;
-import ru.yandex.javacource.blinova.schedule.service.TaskManager;
-import ru.yandex.javacource.blinova.schedule.service.Managers;
 
 import static org.junit.jupiter.api.Assertions.*;
 

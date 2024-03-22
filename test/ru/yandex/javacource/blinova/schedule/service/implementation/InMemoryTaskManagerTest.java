@@ -1,11 +1,12 @@
-package ru.yandex.javacource.blinova.schedule.serviceTest;
+package ru.yandex.javacource.blinova.schedule.service.implementation;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Epic;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Subtask;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Task;
-import ru.yandex.javacource.blinova.schedule.service.implementation.InMemoryHistoryManager;
-import ru.yandex.javacource.blinova.schedule.service.implementation.InMemoryTaskManager;
+import ru.yandex.javacource.blinova.schedule.service.HistoryManager;
+import ru.yandex.javacource.blinova.schedule.service.Managers;
+import ru.yandex.javacource.blinova.schedule.service.TaskManager;
 
 import java.util.List;
 
@@ -15,16 +16,12 @@ import static ru.yandex.javacource.blinova.schedule.models.enums.TaskStatus.*;
 
 class InMemoryTaskManagerTest {
 
-
-    final InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-    final InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager(historyManager);
+    final TaskManager inMemoryTaskManager = Managers.getDefault();
+    final HistoryManager historyManager = inMemoryTaskManager.getHistoryManager();
 
     @Test
     void createTask() {
-        Task task = new Task();
-        task.setName("Test createTask");
-        task.setDescription("Test createTask description");
-        task.setTaskStatus(NEW);
+        Task task = new Task("Test createTask", "Test createTask description", null, NEW);
         final Long taskId = inMemoryTaskManager.createTask(task);
 
         final Task savedTask = inMemoryTaskManager.getTask(taskId);
@@ -41,10 +38,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void createEpic() {
-        Epic epic = new Epic();
-        epic.setName("Test createEpic");
-        epic.setDescription("Test createEpic description");
-        epic.setTaskStatus(NEW);
+        Epic epic = new Epic("Test createEpic", "Test createEpic description", null, NEW);
         inMemoryTaskManager.createEpic(epic);
         final Long epicId = inMemoryTaskManager.createEpic(epic);
 
@@ -62,13 +56,8 @@ class InMemoryTaskManagerTest {
 
     @Test
     void createSubtask() {
-        Subtask subtask = new Subtask();
-        subtask.setName("Test createSubtask");
-        subtask.setDescription("Test createSubtask description");
-        subtask.setTaskStatus(NEW);
-        subtask.setEpicId(1L);
-        Epic epic = new Epic();
-        epic.setId(subtask.getEpicId());
+        Subtask subtask = new Subtask("Test createSubtask", "Test createSubtask description", null, NEW, 1L);
+        Epic epic = new Epic(subtask.getEpicId());
         inMemoryTaskManager.createEpic(epic);
         inMemoryTaskManager.createSubtask(subtask);
         final Long subtaskId = inMemoryTaskManager.createSubtask(subtask);
@@ -90,10 +79,8 @@ class InMemoryTaskManagerTest {
 
     @Test
     void isTaskHeirAreEqualIfTheirIdAreEqual() {
-        Task subtask = new Subtask();
-        subtask.setId(100L);
-        Task epic = new Epic();
-        epic.setId(100L);
+        Task subtask = new Subtask(100L);
+        Task epic = new Epic(100L);
         assertEquals(subtask, epic, "Наследники задачи с одинаковым Id не равны");
     }
 
@@ -120,8 +107,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void isTasksWithSpecifiedIdAndGeneratedIdNotConflict() {
-        Task taskWithSpecifiedId = new Task();
-        taskWithSpecifiedId.setId(2L);
+        Task taskWithSpecifiedId = new Task(2L);
         inMemoryTaskManager.createTask(taskWithSpecifiedId);
         Subtask taskWithGeneratedId = new Subtask();
         inMemoryTaskManager.createTask(taskWithGeneratedId);
@@ -130,11 +116,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void checkImmutabilityTaskFieldsWhenAddingToManager() {
-        Epic epic = new Epic();
-        epic.setId(100L);
-        epic.setTaskStatus(IN_PROGRESS);
-        epic.setDescription("Тестовое описание");
-        epic.setName("Тестовое название");
+        Epic epic = new Epic("Тестовое название", "Тестовое описание", 100L, IN_PROGRESS);
         inMemoryTaskManager.createTask(epic);
         assertEquals(epic.getId(), 100L, "Id задачи после обработки manager изменился");
         assertEquals(epic.getTaskStatus(), IN_PROGRESS, "Статус задачи после обработки manager изменился");
@@ -146,8 +128,7 @@ class InMemoryTaskManagerTest {
     void checkAddingTaskInHistoryWhenGetCall() {
         Epic epic = new Epic();
         inMemoryTaskManager.createEpic(epic);
-        Subtask subtask = new Subtask();
-        subtask.setEpicId(epic.getId());
+        Subtask subtask = new Subtask(null, null, null, null, epic.getId());
         inMemoryTaskManager.createSubtask(subtask);
         Task task = new Task();
         inMemoryTaskManager.createTask(task);
@@ -163,8 +144,7 @@ class InMemoryTaskManagerTest {
     @Test
     void checkIdsAfterRemove() {
         for (long l = 1; l <= 5; l++) {
-            Task task = new Task();
-            task.setId(l);
+            Task task = new Task(l);
             inMemoryTaskManager.createTask(task);
         }
         inMemoryTaskManager.deleteTask(3L);
@@ -173,8 +153,7 @@ class InMemoryTaskManagerTest {
         inMemoryTaskManager.createTask(taskAfterRemove);
         assertEquals(6L, taskAfterRemove.getId(), "Ошибка формирования id после удаления");
 
-        Task insteadOfDeletedTask = new Task();
-        insteadOfDeletedTask.setId(3L);
+        Task insteadOfDeletedTask = new Task(3L);
         inMemoryTaskManager.createTask(insteadOfDeletedTask);
         assertEquals(6, inMemoryTaskManager.getTasks().size(), "Нарушен порядок добавления id");
 
@@ -185,29 +164,25 @@ class InMemoryTaskManagerTest {
 
     @Test
     void checkEpicStatusAfterChangeSubtaskStatus() {
-        Epic epic = new Epic();
-        epic.setTaskStatus(NEW);
+        Epic epic = new Epic(null, null, null, NEW);
         inMemoryTaskManager.createEpic(epic);
 
-        Subtask subtask = new Subtask();
-        subtask.setEpicId(epic.getId());
-        subtask.setTaskStatus(NEW);
+        Subtask subtask = new Subtask(null, null, null, NEW, epic.getId());
         inMemoryTaskManager.createSubtask(subtask);
 
         subtask.setTaskStatus(DONE);
-        inMemoryTaskManager.epicUpdate(epic);
+        inMemoryTaskManager.updateSubtask(subtask);
+
+        inMemoryTaskManager.updateEpic(epic);
         assertEquals(DONE, epic.getTaskStatus(), "После изменения статуса подзадачи, статус эпика не изменился");
     }
 
     @Test
     void checkEpicStatusAfterRemoveSubtask() {
-        Epic epic = new Epic();
-        epic.setTaskStatus(IN_PROGRESS);
+        Epic epic = new Epic(null, null, null, IN_PROGRESS);
         inMemoryTaskManager.createEpic(epic);
 
-        Subtask subtask = new Subtask();
-        subtask.setEpicId(epic.getId());
-        subtask.setTaskStatus(NEW);
+        Subtask subtask = new Subtask(null, null, null, NEW, epic.getId());
         inMemoryTaskManager.createSubtask(subtask);
 
         inMemoryTaskManager.deleteSubtask(subtask.getId());
@@ -220,43 +195,77 @@ class InMemoryTaskManagerTest {
         Epic epic = new Epic();
         inMemoryTaskManager.createEpic(epic);
 
-        Subtask firstSubtask = new Subtask();
-        firstSubtask.setEpicId(epic.getId());
+        Subtask firstSubtask = new Subtask(null, null, null, null, epic.getId());
         inMemoryTaskManager.createSubtask(firstSubtask);
 
-        Subtask secondSubtask = new Subtask();
-        secondSubtask.setEpicId(epic.getId());
+        Subtask secondSubtask = new Subtask(null, null, null, null, epic.getId());
         inMemoryTaskManager.createSubtask(secondSubtask);
 
         assertEquals(2, inMemoryTaskManager.getAllSubtaskByEpic(epic).size(), "Неправильная работа добавления подзадач в эпик");
     }
 
     @Test
-    void checkUpdatingSubtask() {
+    void checkUpdatingSubtaskInHistory() {
         Epic epic = new Epic();
         inMemoryTaskManager.createEpic(epic);
 
-        Subtask subtaskBeforeUpdate = new Subtask();
-        subtaskBeforeUpdate.setId(100L);
-        subtaskBeforeUpdate.setTaskStatus(IN_PROGRESS);
-        subtaskBeforeUpdate.setName("Название подзадачи до обновления");
-        subtaskBeforeUpdate.setDescription("Описание подзадачи до обновления");
-        subtaskBeforeUpdate.setEpicId(epic.getId());
+        Subtask subtaskBeforeUpdate = new Subtask("Название подзадачи до обновления",
+                "Описание подзадачи до обновления", 100L, IN_PROGRESS, epic.getId());
         inMemoryTaskManager.createSubtask(subtaskBeforeUpdate);
+        inMemoryTaskManager.getSubtask(subtaskBeforeUpdate.getId());
 
-        Subtask subtaskAfterUpdate = new Subtask();
-        subtaskAfterUpdate.setId(100L);
-        subtaskAfterUpdate.setTaskStatus(DONE);
-        subtaskAfterUpdate.setName("Название подзадачи после обновления");
-        subtaskAfterUpdate.setDescription("Описание подзадачи после обновления");
-        subtaskAfterUpdate.setEpicId(epic.getId());
+        Subtask subtaskAfterUpdate = new Subtask("Название подзадачи после обновления",
+                "Описание подзадачи после обновления", 100L, DONE, epic.getId());
         inMemoryTaskManager.updateSubtask(subtaskAfterUpdate);
 
-        final Subtask checkSubtask = inMemoryTaskManager.getSubtask(100L);
+        final Subtask checkingSubtask = (Subtask) historyManager.getHistory().get(0);
 
-        assertEquals(checkSubtask.getId(), 100L, "Id задачи после update изменился");
-        assertEquals(checkSubtask.getTaskStatus(), DONE, "Статус задачи после update изменился");
-        assertEquals(checkSubtask.getDescription(), "Описание подзадачи после обновления", "Описание задачи после update изменился");
-        assertEquals(checkSubtask.getName(), "Название подзадачи после обновления", "Название задачи после update изменился");
+        assertEquals(checkingSubtask.getId(), 100L, "Id подзадачи после update изменился");
+        assertEquals(checkingSubtask.getTaskStatus(), IN_PROGRESS, "Статус подзадачи после update изменился");
+        assertEquals(checkingSubtask.getDescription(), "Описание подзадачи до обновления", "Описание подзадачи после update изменился");
+        assertEquals(checkingSubtask.getName(), "Название подзадачи до обновления", "Название подзадачи после update изменился");
+    }
+
+    @Test
+    void checkUpdatingTaskInHistory() {
+        Epic epic = new Epic();
+        inMemoryTaskManager.createEpic(epic);
+
+        Task taskBeforeUpdate = new Task("Название задачи до обновления",
+                "Описание задачи до обновления", 100L, IN_PROGRESS);
+        inMemoryTaskManager.createTask(taskBeforeUpdate);
+        inMemoryTaskManager.getTask(taskBeforeUpdate.getId());
+
+        Task taskAfterUpdate = new Task("Название задачи после обновления",
+                "Описание задачи после обновления", 100L, DONE);
+        inMemoryTaskManager.updateTask(taskAfterUpdate);
+
+        final Task checkingTask = historyManager.getHistory().get(0);
+
+        assertEquals(checkingTask.getId(), 100L, "Id задачи после update изменился");
+        assertEquals(checkingTask.getTaskStatus(), IN_PROGRESS, "Статус задачи после update изменился");
+        assertEquals(checkingTask.getDescription(), "Описание задачи до обновления", "Описание задачи после update изменился");
+        assertEquals(checkingTask.getName(), "Название задачи до обновления", "Название задачи после update изменился");
+    }
+
+    @Test
+    void checkUpdatingEpicInHistory() {
+        Epic epicBeforeUpdate = new Epic("Название эпика до обновления", "Описание эпика до обновления",
+                100L, IN_PROGRESS);
+        inMemoryTaskManager.createEpic(epicBeforeUpdate);
+
+        inMemoryTaskManager.createEpic(epicBeforeUpdate);
+        inMemoryTaskManager.getEpic(epicBeforeUpdate.getId());
+
+        Epic epicAfterUpdate = new Epic("Название эпика после обновления",
+                "Описание эпика после обновления", 100L, DONE);
+        inMemoryTaskManager.updateEpic(epicAfterUpdate);
+
+        final Epic checkingEpic = (Epic) historyManager.getHistory().get(0);
+
+        assertEquals(checkingEpic.getId(), 100L, "Id эпика после update изменился");
+        assertEquals(checkingEpic.getTaskStatus(), IN_PROGRESS, "Статус эпика после update изменился");
+        assertEquals(checkingEpic.getDescription(), "Описание эпика до обновления", "Описание эпика после update изменился");
+        assertEquals(checkingEpic.getName(), "Название эпика до обновления", "Название эпика после update изменился");
     }
 }

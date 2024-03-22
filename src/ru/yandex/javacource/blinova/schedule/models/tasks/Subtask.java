@@ -5,11 +5,16 @@ import ru.yandex.javacource.blinova.schedule.models.enums.TaskStatus;
 public class Subtask extends Task {
     private Long epicId;
 
-    public Subtask(String name, String description, Long id, TaskStatus taskStatus) {
+    public Subtask(String name, String description, Long id, TaskStatus taskStatus, Long epicId) {
         super(name, description, id, taskStatus);
+        this.epicId = epicId;
     }
 
     public Subtask() {
+    }
+
+    public Subtask(Long id) {
+        super(id);
     }
 
     public Long getEpicId() {

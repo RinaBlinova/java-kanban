@@ -18,6 +18,10 @@ public class Task {
 
     }
 
+    public Task(Long id) {
+        this.id = id;
+    }
+
     public Task() {
     }
 

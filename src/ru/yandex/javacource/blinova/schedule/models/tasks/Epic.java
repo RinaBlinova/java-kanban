@@ -15,7 +15,11 @@ public class Epic extends Task {
 
     }
 
-    public ArrayList<Long> getSubtaskList() {
+    public Epic(Long id) {
+        super(id);
+    }
+
+    public ArrayList<Long> getSubtaskIds() {
         return subtaskIds;
     }
 
@@ -32,6 +36,10 @@ public class Epic extends Task {
 
     public void cleanSubtaskIds() {
         subtaskIds.clear();
+    }
+
+    public void setSubtaskIds(ArrayList<Long> subtaskIds) {
+        this.subtaskIds = subtaskIds;
     }
 
     @Override
