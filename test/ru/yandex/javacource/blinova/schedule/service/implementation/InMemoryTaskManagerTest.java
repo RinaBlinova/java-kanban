@@ -6,7 +6,6 @@ import ru.yandex.javacource.blinova.schedule.models.tasks.Subtask;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Task;
 import ru.yandex.javacource.blinova.schedule.service.HistoryManager;
 import ru.yandex.javacource.blinova.schedule.service.Managers;
-import ru.yandex.javacource.blinova.schedule.service.TaskManager;
 
 import java.util.List;
 
@@ -16,7 +15,7 @@ import static ru.yandex.javacource.blinova.schedule.models.enums.TaskStatus.*;
 
 class InMemoryTaskManagerTest {
 
-    final TaskManager inMemoryTaskManager = Managers.getDefault();
+    final InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
     final HistoryManager historyManager = inMemoryTaskManager.getHistoryManager();
 
     @Test

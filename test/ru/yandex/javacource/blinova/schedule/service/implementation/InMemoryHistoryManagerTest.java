@@ -2,6 +2,8 @@ package ru.yandex.javacource.blinova.schedule.service.implementation;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Task;
+import ru.yandex.javacource.blinova.schedule.service.HistoryManager;
+import ru.yandex.javacource.blinova.schedule.service.Managers;
 
 import java.util.List;
 
@@ -9,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
 
-    InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Test
     void add() {

@@ -2,6 +2,7 @@ package ru.yandex.javacource.blinova.schedule.service;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Epic;
+import ru.yandex.javacource.blinova.schedule.service.implementation.InMemoryTaskManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -9,7 +10,7 @@ class ManagersTest {
 
     @Test
     void checkInitializedAndReadyToUseInstances() {
-        final TaskManager taskManager = Managers.getDefault();
+        final InMemoryTaskManager taskManager = (InMemoryTaskManager) Managers.getDefault();
         final HistoryManager historyManager = taskManager.getHistoryManager();
 
         Epic epic = new Epic();

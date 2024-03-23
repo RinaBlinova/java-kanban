@@ -7,6 +7,7 @@ import ru.yandex.javacource.blinova.schedule.models.tasks.Task;
 import java.util.List;
 
 public interface TaskManager {
+
     Long createTask(Task task);
 
     Long createEpic(Epic epic);
@@ -45,5 +46,5 @@ public interface TaskManager {
 
     List<Subtask> getAllSubtaskByEpic(Epic epic);
 
-    HistoryManager getHistoryManager();
+    List<Task> getHistory();
 }

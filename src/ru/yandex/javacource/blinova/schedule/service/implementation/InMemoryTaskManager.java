@@ -2,6 +2,7 @@ package ru.yandex.javacource.blinova.schedule.service.implementation;
 
 import ru.yandex.javacource.blinova.schedule.models.enums.TaskStatus;
 import ru.yandex.javacource.blinova.schedule.service.HistoryManager;
+import ru.yandex.javacource.blinova.schedule.service.Managers;
 import ru.yandex.javacource.blinova.schedule.service.TaskManager;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Epic;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Subtask;
@@ -14,15 +15,16 @@ import java.util.List;
 import static ru.yandex.javacource.blinova.schedule.models.enums.TaskStatus.*;
 
 public class InMemoryTaskManager implements TaskManager {
+
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
+
     private final HashMap<Long, Task> tasks;
     private final HashMap<Long, Subtask> subtasks;
     private final HashMap<Long, Epic> epics;
 
     private Long generatorId;
-    private final HistoryManager historyManager;
 
-    public InMemoryTaskManager(HistoryManager historyManager) {
-        this.historyManager = historyManager;
+    public InMemoryTaskManager() {
         this.tasks = new HashMap<>();
         this.subtasks = new HashMap<>();
         this.epics = new HashMap<>();
@@ -69,21 +71,27 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTask(Long id) {
         Task task = tasks.get(id);
-        historyManager.add(task);
+        if (task != null) {
+            historyManager.add(task);
+        }
         return task;
     }
 
     @Override
     public Subtask getSubtask(Long id) {
         Subtask subtask = subtasks.get(id);
-        historyManager.add(subtask);
+        if (subtask != null) {
+            historyManager.add(subtask);
+        }
         return subtask;
     }
 
     @Override
     public Epic getEpic(Long id) {
         Epic epic = epics.get(id);
-        historyManager.add(epic);
+        if (epic != null) {
+            historyManager.add(epic);
+        }
         return epic;
     }
 
@@ -117,9 +125,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (savedEpic == null) {
             return;
         }
-//        for (Long subtaskId : savedEpic.getSubtaskList()) {
-//            epic.addSubtaskId(subtaskId);
-//        }
         epic.setSubtaskIds(savedEpic.getSubtaskIds());
         epic.setTaskStatus(savedEpic.getTaskStatus());
         epics.put(epic.getId(), epic);
@@ -207,8 +212,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public HistoryManager getHistoryManager() {
-        return historyManager;
+    public List<Task> getHistory() {
+        return historyManager.getHistory();
     }
 
     private void updateEpicStatus(Long epicId) {
@@ -258,6 +263,10 @@ public class InMemoryTaskManager implements TaskManager {
             taskStatus = NEW;
         }
         return taskStatus;
+    }
+
+    public HistoryManager getHistoryManager() {
+        return historyManager;
     }
 }
 
