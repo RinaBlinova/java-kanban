@@ -24,7 +24,7 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void checkDeletingTaskDuplicates() {
-        Task task = new Task();
+        Task task = new Task(1L);
         historyManager.add(task);
         historyManager.add(task);
         assertEquals(1, historyManager.getHistory().size(), "Повторяющиеся задания не удаляются из истории");
@@ -46,6 +46,5 @@ class InMemoryHistoryManagerTest {
         historyManager.remove(3L);
         historyManager.remove(9L);
         assertEquals(6, historyManager.getHistory().size(), "Задания не удаляются из истории");
-
     }
 }
