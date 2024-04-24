@@ -8,9 +8,7 @@ import ru.yandex.javacource.blinova.schedule.models.tasks.Epic;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Subtask;
 import ru.yandex.javacource.blinova.schedule.models.tasks.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static ru.yandex.javacource.blinova.schedule.models.enums.TaskStatus.*;
 
@@ -133,6 +131,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTask(Long taskId) {
         tasks.remove(taskId);
+        historyManager.remove(taskId);
     }
 
     @Override
@@ -144,6 +143,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(subtask.getEpicId());
         epic.removeSubtask(subtaskId);
         updateEpicStatus(epic.getId());
+        historyManager.remove(subtaskId);
     }
 
     @Override
@@ -152,6 +152,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (Long subtaskId : epic.getSubtaskIds()) {
             subtasks.remove(subtaskId);
         }
+        historyManager.remove(epicId);
     }
 
     @Override
@@ -171,6 +172,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
+        for (Long taskId : tasks.keySet()) {
+            historyManager.remove(taskId);
+        }
         tasks.clear();
     }
 
@@ -180,6 +184,9 @@ public class InMemoryTaskManager implements TaskManager {
             epic.cleanSubtaskIds();
             updateEpicStatus(epic.getId());
         }
+        for (Long subtaskId : subtasks.keySet()) {
+            historyManager.remove(subtaskId);
+        }
         subtasks.clear();
     }
 
@@ -187,6 +194,9 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpics() {
         for (Epic epic : epics.values()) {
             epic.cleanSubtaskIds();
+        }
+        for (Long epicId : epics.keySet()) {
+            historyManager.remove(epicId);
         }
         subtasks.clear();
         epics.clear();

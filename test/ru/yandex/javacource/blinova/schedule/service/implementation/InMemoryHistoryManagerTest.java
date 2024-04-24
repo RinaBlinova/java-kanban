@@ -14,7 +14,7 @@ class InMemoryHistoryManagerTest {
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Test
-    void add() {
+    void testAddTaskInHistory() {
         Task task = new Task(100L);
         historyManager.add(task);
         final List<Task> history = historyManager.getHistory();
@@ -23,27 +23,28 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void checkHistoryListSize() {
-        for (long l = 1; l <= 100; l++) {
+    void checkDeletingTaskDuplicates() {
+        Task task = new Task(1L);
+        historyManager.add(task);
+        historyManager.add(task);
+        assertEquals(1, historyManager.getHistory().size(), "Повторяющиеся задания не удаляются из истории");
+
+        for (int i = 0; i < 10; i++) {
+            historyManager.add(task);
+        }
+        assertEquals(1, historyManager.getHistory().size(), "Повторяющиеся задания не удаляются из истории");
+    }
+
+    @Test
+    void checkRemovingTask() {
+        for (long l = 0; l < 10; l++) {
             Task task = new Task(l);
             historyManager.add(task);
         }
-        assertEquals(10, historyManager.getHistory().size(), "Размер истории после добавления 100 " +
-                "элементов неверен");
-        historyManager.getHistory().clear();
-
-        for (long l = 1; l <= 10; l++) {
-            Task task = new Task(l);
-            historyManager.add(task);
-        }
-        assertEquals(10, historyManager.getHistory().size(), "Размер истории после добавления 10 элементов" +
-                " неверен");
-
-        Task newTask = new Task(11L);
-        historyManager.add(newTask);
-
-        assertEquals(10, historyManager.getHistory().size(), "Размер истории неверен");
-        assertEquals(2L, historyManager.getHistory().get(0).getId(), "1 элемент не удаляется после добавления лишней задачи");
-        assertEquals(11L, historyManager.getHistory().get(historyManager.getHistory().size() - 1).getId(), "Последний элемент добавился неверно");
+        historyManager.remove(1L);
+        historyManager.remove(2L);
+        historyManager.remove(3L);
+        historyManager.remove(9L);
+        assertEquals(6, historyManager.getHistory().size(), "Задания не удаляются из истории");
     }
 }
